@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roaring Rooster - AI Tech Solutions for North Jersey Businesses</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        .pain-points-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .pain-point {
+            position: relative;
+            height: 120px;
+            padding: 1rem;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            background: var(--color-background);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .pain-point .label {
+            font-weight: 600;
+            color: var(--color-text);
+            transition: opacity 0.3s ease;
+        }
+
+        .pain-point .symptom {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            color: var(--color-text-light);
+            transition: opacity 0.3s ease;
+            width: 100%;
+            padding: 0 1rem;
+        }
+
+        .pain-point:hover {
+            background: var(--color-secondary);
+            border-color: var(--color-primary);
+        }
+
+        .pain-point:hover .label {
+            opacity: 0;
+        }
+
+        .pain-point:hover .symptom {
+            opacity: 1;
+        }
+
+        /* Diagnostic Box Styles */
+        .diagnostic-box {
+            display: none;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--color-background);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(44, 62, 80, 0.08);
+            position: relative;
+        }
+
+        .diagnostic-box.active {
+            display: block;
+        }
+
+        .box-content {
+            position: relative;
+        }
+
+        .close-box {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--color-text-light);
+            padding: 0.5rem;
+            line-height: 1;
+        }
+
+        .close-box:hover {
+            color: var(--color-primary);
+        }
+
+        .form-group {
+            margin: 1.5rem 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        .form-group textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            font-size: 1rem;
+            resize: vertical;
+            background: var(--color-background);
+            color: var(--color-text);
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-dark);
+        }
+
+        /* AI Response Styles */
+        .ai-response {
+            padding: 1rem 0;
+        }
+
+        .ai-response h3 {
+            margin-bottom: 1rem;
+            color: var(--color-primary);
+        }
+
+        .plan-content {
+            background: var(--color-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            white-space: pre-line;
+            line-height: 1.6;
+            color: var(--color-text);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background: var(--color-text-light);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-primary);
+        }
+
+        /* Loading Overlay Styles */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(248, 249, 250, 0.9);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #E9ECEF;
+            border-top: 5px solid var(--color-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">Roaring Rooster - Building your one-stop business portal</div>
+            <nav class="nav">
+                <a href="#" class="nav-link">Home</a>
+                <a href="#" class="nav-link">About</a>
+                <a href="#" class="nav-link">Case Studies</a>
+                <a href="#" class="nav-link">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Buried in paperwork? Losing leads? Pick your worst business headache below.</h1>
+                <p class="subhead">Roaring Rooster is a West Milford based technology consulting company. We  work with you to understand both your customer's needs when they visit your website, and the internal tools you need (like processing payments, managing your team, booking appointments, and more). We use an AI-powered development process to rapidly build out your custom solution - typically in less than a week. We connect all the tools you need through a single web portal, so you can focus on running your business, and leave the tech to us.
+                    <br><br>From portals for salons to schedule clients, landscaping companies to manage their crews, and more - you'll be the hero your customers love, and they'll rave about your easy-to-use solutions.
+                </p>
+                <p class="subhead">Click the box that hurts most - then book to get your custom solution running by next week.</p>
+                
+                <div class="pain-points-grid">
+                    <button class="pain-point" data-pain="time-admin">
+                        <span class="label">Overwhelmed by Paperwork</span>
+                        <span class="symptom">Paperwork takes hours - automated with AI</span>
+                    </button>
+                    <button class="pain-point" data-pain="missed-appointments">
+                        <span class="label">Missed Appointments</span>
+                        <span class="symptom">Automate reminders and get self-service bookings and appointments</span>
+                    </button>
+                    <button class="pain-point" data-pain="lost-leads">
+                        <span class="label">Lost Leads</span>
+                        <span class="symptom">Track leads and responses automatically - even generate with AI!</span>
+                    </button>
+                    <button class="pain-point" data-pain="disconnected-systems">
+                        <span class="label">Disconnected Tech</span>
+                        <span class="symptom">Get a single, unified solution that works for your business</span>
+                    </button>
+                    <button class="pain-point" data-pain="cash-flow">
+                        <span class="label">Cash-Flow Blindness</span>
+                        <span class="symptom">Invoicing and payments - automated!</span>
+                    </button>
+                    <button class="pain-point" data-pain="staff-scheduling">
+                        <span class="label">Scheduling Chaos</span>
+                        <span class="symptom">Schedule shifts and handle swaps effortlessly</span>
+                    </button>
+                    <button class="pain-point" data-pain="online-presence">
+                        <span class="label">Weak Online Presence</span>
+                        <span class="symptom">Build a modern web app and get noticed</span>
+                    </button>
+                    <button class="pain-point" data-pain="customer-experience">
+                        <span class="label">Customer Experience Gaps</span>
+                        <span class="symptom">Keep customers engaged and coming back to book with you</span>
+                    </button>
+                    <button class="pain-point" data-pain="data-security">
+                        <span class="label">Data & Security Fears</span>
+                        <span class="symptom">YOU own your custom solution, and scale and add featuresas you grow</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Diagnostic Box (hidden by default) -->
+        <div class="diagnostic-box" id="diagnosticDrawer">
+            <div class="box-content">
+                <button class="close-box" id="closeDrawer">&times;</button>
+                <h2>Let's solve your problem</h2>
+                <form id="diagnosticForm">
+                    <div class="form-group">
+                        <label for="problem">Describe what's driving you crazy in one sentence</label>
+                        <textarea id="problem" name="problem" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Show me a quick plan</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Proof Strip Section -->
+        <section class="proof-strip">
+            <div class="container">
+                <div class="proof-grid">
+                    <div class="proof-item">
+                        <img src="assets/client1.png" alt="Client 1" class="client-logo">
+                        <p class="quote">"Saved us 10 hours a week on paperwork"</p>
+                    </div>
+                    <div class="proof-item">
+                        <img src="assets/client2.png" alt="Client 2" class="client-logo">
+                        <p class="quote">"No more missed appointments"</p>
+                    </div>
+                    <div class="proof-item">
+                        <img src="assets/client3.png" alt="Client 3" class="client-logo">
+                        <p class="quote">"Our systems finally work together"</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="how-it-works">
+            <div class="container">
+                <h2>How It Works</h2>
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h3>Discover</h3>
+                        <p>We analyze your current customer journey and your internal processes to determine what customer facing and internal facing features to build.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h3>Prototype</h3>
+                        <p>We build a custom web app solution and test it with your team in just one week. Customers get a clear, easy journey through understanding and booking with your business.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h3>Launch</h3>
+                        <p>We implement the solution and train your team to use it effectively. You gain ownership of your app, and can grow and customize it as your business scales.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section class="pricing">
+            <div class="container">
+                <h2>Simple, Transparent Pricing</h2>
+                <p class="pricing-teaser">Starts at less than one missed job a month</p>
+                <div class="pricing-card">
+                    <h3>Custom Solution</h3>
+                    <ul class="pricing-features">
+                        <li>Tailored to your specific needs</li>
+                        <li>One-week prototype</li>
+                        <li>Full implementation</li>
+                        <li>Team training</li>
+                        <li>Ongoing support</li>
+                    </ul>
+                    <button class="btn-primary">Get Started</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="about">
+            <div class="container">
+                <div class="about-content">
+                    <div class="about-text">
+                        <h2>About Michael</h2>
+                        <p>Born and raised in West Milford—if anything breaks, I'm ten minutes away, not ten time-zones.</p>
+                        <p>With over 10 years of experience in business automation and tech solutions, I help local businesses save time and reduce stress through smart technology.</p>
+                    </div>
+                    <div class="about-image">
+                        <img src="assets/michael.jpg" alt="Michael" class="profile-image">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq">
+            <div class="container">
+                <h2>Frequently Asked Questions</h2>
+                <div class="faq-grid">
+                    <div class="faq-item">
+                        <button class="faq-question">How long does implementation take?</button>
+                        <div class="faq-answer">
+                            <p>Most solutions are prototyped within one week. Full implementation typically takes 2-4 weeks, depending on complexity.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question">What if it doesn't work for us?</button>
+                        <div class="faq-answer">
+                            <p>We offer a "no solution, no fee" guarantee. If we can't solve your problem, you don't pay.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question">Do I need technical knowledge?</button>
+                        <div class="faq-answer">
+                            <p>Not at all. We handle all the technical details and provide full training for your team.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question">What kind of support do you offer?</button>
+                        <div class="faq-answer">
+                            <p>We provide ongoing support and are always available to help with any questions or issues.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skip Quiz Link -->
+        <a href="#" class="skip-quiz">Skip the quiz, just contact me</a>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <p>Email: michael@roaringrooster.com</p>
+                    <p>Phone: (555) 123-4567</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Follow Us</h3>
+                    <div class="social-links">
+                        <a href="#" class="social-link">LinkedIn</a>
+                        <a href="#" class="social-link">Twitter</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <p class="privacy-notice">© 2024 Roaring Rooster. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Debug log to verify script is running
+        console.log('Script loaded');
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            // Get DOM elements
+            const painPoints = document.querySelectorAll('.pain-point');
+            const diagnosticBox = document.getElementById('diagnosticDrawer');
+            const closeButton = document.getElementById('closeDrawer');
+            const diagnosticForm = document.getElementById('diagnosticForm');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+
+            console.log('Pain points:', painPoints.length);
+            console.log('Diagnostic box:', diagnosticBox);
+
+            // Track the selected pain point
+            let selectedPainPoint = '';
+
+            // Add click handlers to pain points
+            painPoints.forEach(point => {
+                point.addEventListener('click', function() {
+                    console.log('Pain point clicked:', this.dataset.pain);
+                    selectedPainPoint = this.dataset.pain;
+                    diagnosticBox.classList.add('active');
+                    // Scroll to the diagnostic box smoothly
+                    diagnosticBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+            });
+
+            // Close button handler
+            closeButton.addEventListener('click', function() {
+                diagnosticBox.classList.remove('active');
+                diagnosticForm.reset();
+            });
+
+            // Close on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && diagnosticBox.classList.contains('active')) {
+                    diagnosticBox.classList.remove('active');
+                    diagnosticForm.reset();
+                }
+            });
+
+            // Form submission handler
+            diagnosticForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const problem = document.getElementById('problem').value;
+                if (!problem.trim()) return;
+
+                // Show loading overlay
+                loadingOverlay.style.display = 'flex';
+
+                try {
+                    // Here you would typically make an API call to your backend
+                    // For now, we'll simulate a response
+                    const response = await simulateAIResponse(selectedPainPoint, problem);
+                    
+                    // Display the response
+                    const responseDiv = document.createElement('div');
+                    responseDiv.className = 'ai-response';
+                    responseDiv.innerHTML = `
+                        <h3>Here's your quick plan:</h3>
+                        <div class="plan-content">${response}</div>
+                        <div class="cta-buttons">
+                            <button class="btn-primary" onclick="openCalendly()">Book a 20-min call</button>
+                            <button class="btn-secondary" onclick="requestSMS()">Text me the plan</button>
+                        </div>
+                    `;
+
+                    // Replace form with response
+                    diagnosticBox.querySelector('.box-content').innerHTML = '';
+                    diagnosticBox.querySelector('.box-content').appendChild(responseDiv);
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Sorry, something went wrong. Please try again.');
+                } finally {
+                    loadingOverlay.style.display = 'none';
+                }
+            });
+        });
+
+        // Simulate AI response (replace with actual API call)
+        async function simulateAIResponse(painPoint, problem) {
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Mock response based on pain point
+            const responses = {
+                'time-admin': '1. Automate your paperwork with custom templates\n2. Set up digital document management\n3. Create automated workflows for common tasks',
+                'missed-appointments': '1. Implement automated appointment reminders\n2. Set up a self-service booking system\n3. Create a no-show prevention strategy',
+                'lost-leads': '1. Set up automated lead response system\n2. Create a lead tracking dashboard\n3. Implement follow-up automation',
+                // Add more responses for other pain points
+            };
+
+            return responses[painPoint] || '1. Analyze your current workflow\n2. Design a custom solution\n3. Implement and test the solution';
+        }
+
+        // Calendly integration
+        function openCalendly() {
+            if (typeof Calendly !== 'undefined') {
+                Calendly.initPopupWidget({
+                    url: 'YOUR_CALENDLY_URL'
+                });
+            }
+        }
+
+        // SMS request handler
+        function requestSMS() {
+            const phone = prompt('Please enter your phone number:');
+            if (phone) {
+                // Here you would typically make an API call to your backend
+                alert('We\'ll text the plan to ' + phone + ' shortly!');
+            }
+        }
+    </script>
+    <!-- Calendly widget script -->
+    <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+</body>
+</html> 
